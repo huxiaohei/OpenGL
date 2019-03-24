@@ -11,12 +11,15 @@
 #include <glad/glad.h>
 
 class Shader {
-  private: 
+  private:
     GLuint programShader;
+
   public:
     Shader(const char *vertexPath, const char *fragmentPath);
     ~Shader();
     void useProgram();
+    GLint getAttributeLocation(const char *attributeName);
+    GLint getUniformLocation(const char *uniformName);
     void checkShaderCompileError(GLuint shader, GLenum type);
     void checkProgramLink(GLuint shader);
 };

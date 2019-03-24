@@ -31,23 +31,26 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath) {
         fragmentFile.close();
         fragmentCode = fragmentStringStream.str();
     } catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
+        std::cerr << "read shader source code error : " << e.what() << std::endl;
     }
 
     const char *vertexShaderSource = vertexCode.c_str();
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
+    checkShaderCompileError(vertexShader, GL_VERTEX_SHADER);
 
     const char *fragmentShaderSource = fragmentCode.c_str();
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
+    checkShaderCompileError(fragmentShader, GL_FRAGMENT_SHADER);
 
     programShader = glCreateProgram();
     glAttachShader(programShader, vertexShader);
     glAttachShader(programShader, fragmentShader);
     glLinkProgram(programShader);
+    checkProgramLink(programShader);
     glCompileShader(programShader);
 
     glDeleteShader(vertexShader);
@@ -55,6 +58,14 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath) {
 }
 
 void Shader::useProgram() { glUseProgram(programShader); }
+
+GLint Shader::getAttributeLocation(const char *attributeName) {
+    return glGetAttribLocation(programShader, attributeName);
+}
+
+GLint Shader::getUniformLocation(const char *uniformName) {
+    return glGetUniformLocation(programShader, uniformName);
+}
 
 void Shader::checkShaderCompileError(GLuint shader, GLenum type) {
     GLint compileSuccess = 0;
@@ -72,9 +83,9 @@ void Shader::checkShaderCompileError(GLuint shader, GLenum type) {
 void Shader::checkProgramLink(GLuint shader) {
     GLint linkSuccess = 0;
     char linkFailureInfo[1024];
-    glGetShaderiv(shader, GL_LINK_STATUS, &linkSuccess);
+    glGetProgramiv(shader, GL_LINK_STATUS, &linkSuccess);
     if (!linkSuccess) {
-        glGetShaderInfoLog(shader, 1024, NULL, linkFailureInfo);
+        glGetProgramInfoLog(shader, 1024, NULL, linkFailureInfo);
         std::cerr << "link program failure " << linkFailureInfo << std::endl;
     } else {
         std::cout << "link program success" << std::endl;

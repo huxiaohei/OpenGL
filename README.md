@@ -14,3 +14,4 @@
 * [封装着色器对象]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_010>
 * [OpenGL缓存数据]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_011>
 * [OpenGL基本绘制命令]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_012>
+* [OpenGL多实例渲染]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_013>
