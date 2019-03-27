@@ -1,0 +1,42 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "main.cpp",
+                "glad.c",
+                "-framework",
+                "GLUT",
+                "-framework",
+                "OpenGL",
+                "-lglfw",
+                "-lglew",
+                "-o",
+                "${fileDirname}/../build/main",
+                "-g",
+                "-Wall",
+                "-fcolor-diagnostics",
+                "-std=c++11",
+                "-stdlib=libc++",
+                "-v"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}

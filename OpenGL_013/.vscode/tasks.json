@@ -1,0 +1,46 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "${workspaceFolder}/src/main.cpp",
+                "${workspaceFolder}/src/glad.c",
+                "${workspaceFolder}/src/shader/shader.cpp",
+                "-framework",
+                "GLUT",
+                "-framework",
+                "OpenGL",
+                "-lglfw",
+                "-lglew",
+                "-o",
+                "${workspaceFolder}/bin/main",
+                "-g",
+                "-Wall",
+                "-fcolor-diagnostics",
+                "-std=c++11",
+                "-stdlib=libc++",
+                "-v"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true
+            },
+            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}
