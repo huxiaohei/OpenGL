@@ -26,7 +26,7 @@ void processInput(GLFWwindow *window);
 int draw(GLFWwindow *window);
 
 int main() {
-    GLFWwindow *window = createWindow(1280, 720, "变化");
+    GLFWwindow *window = createWindow(720, 720, "变化");
     if (window == NULL) {
         std::cerr << "create window error" << std::endl;
         return -1;
