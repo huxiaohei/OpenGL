@@ -1,5 +1,5 @@
 /*================================================================
-* Description 变换(位移，缩放，旋转)
+* Description 一个片段着色器中设置多纹理
 * Email huliuworld@yahoo.com
 * Created on Mon Apr 15 2019 0:0:22
 * Copyright (c) 2019 刘虎
@@ -22,7 +22,7 @@ int draw(GLFWwindow *window);
 
 int main() {
 
-    GLFWwindow *window = createWindow(1280, 720, "变化");
+    GLFWwindow *window = createWindow(1280, 720, "一个片段着色器中设置多纹理");
     if (window == NULL) {
         std::cerr << "create window error" << std::endl;
         return -1;
