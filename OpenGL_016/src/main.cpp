@@ -1,5 +1,5 @@
 /*================================================================
-* Description 坐标系统
+* Description 进入3D--坐标系统--透视
 * Email huliuworld@yahoo.com
 * Created on Tue Apr 23 2019 0:37:48
 * Copyright (c) 2019 刘虎
@@ -10,6 +10,12 @@
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#define SCREEN_WIDTH 1280.0f
+#define SCREEN_HEIGHT 720.0f
 
 GLFWwindow *createWindow(int width, int height, const std::string &title);
 void processInput(GLFWwindow *window);
@@ -17,7 +23,7 @@ void windowSizeCallback(GLFWwindow *window, int width, int height);
 int draw(GLFWwindow *window);
 
 int main() {
-    GLFWwindow *window = createWindow(1280, 720, "坐标系统");
+    GLFWwindow *window = createWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "进入3D--坐标系统--透视");
     if (window == NULL) {
         std::cerr << "create window error" << std::endl;
         return -1;
@@ -142,7 +148,19 @@ int draw(GLFWwindow *window) {
         glBindTexture(GL_TEXTURE_2D, texture[0]);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture[1]);
+
         shader->use();
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::mat4 view = glm::mat4(1.0f);
+        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        glm::mat4 projection = glm::mat4(1.0f);
+        projection = glm::perspective(glm::radians(45.0f), SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
+        shader->updateUniformMatrix4fvByName("model", 1, GL_FALSE, glm::value_ptr(model));
+        shader->updateUniformMatrix4fvByName("view", 1, GL_FALSE, glm::value_ptr(view));
+        shader->updateUniformMatrix4fvByName("projection", 1, GL_FALSE, glm::value_ptr(projection));
+
         glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 
         glfwPollEvents();

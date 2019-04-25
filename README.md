@@ -16,3 +16,5 @@
 * [OpenGL基本绘制命令]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_012>
 * [OpenGL多实例渲染]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_013>
 * [变换 位移/缩放/旋转]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_014>
+* [一个片段着色器中设置多纹理]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_015>
+* [进入3D--坐标系统--透视]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_016>
