@@ -1,7 +1,7 @@
 /*================================================================
-* Description 进入3D--摄像机--移动
+* Description 进入3D--摄像机--鼠标控制视角移动
 * Email huliuworld@yahoo.com
-* Created on Wed May 01 2019 23:21:37
+* Created on Thu May 02 2019 12:14:39
 * Copyright (c) 2019 刘虎
 ================================================================*/
 
@@ -18,14 +18,22 @@
 #define SCREEN_WIDTH 1280.0f
 #define SCREEN_HEIGHT 720.0f
 
-// #define ROTATE_CAMERA_TEST
+double lastMouseX = 0;
+double lastMouseY = 0;
+double firstMouse = true;
+float fov = 45.0f;
+
+double pitch = 0.0f; // 俯仰角
+double yaw = -90.0f;   // 偏航角
 
 GLFWwindow *createWindow(int width, int height, const std::string &title);
 void processInput(GLFWwindow *window);
 void windowSizeCallback(GLFWwindow *window, int width, int height);
+void mouseCallback(GLFWwindow *window, double mouseX, double mouseY);
+void scrollCallback(GLFWwindow *window, double offsetX, double offsetY);
 int draw(GLFWwindow *window);
 
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 6.0f);    // 摄像机位置
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);    // 摄像机位置
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); // 摄像机正前方
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);     // 上向量
 
@@ -37,6 +45,8 @@ int main() {
     }
     glfwMakeContextCurrent(window);
     glfwSetWindowSizeCallback(window, windowSizeCallback);
+    glfwSetCursorPosCallback(window, mouseCallback);
+    glfwSetScrollCallback(window, scrollCallback);
     return draw(window);
 }
 
@@ -58,7 +68,7 @@ GLFWwindow *createWindow(int width, int height, const std::string &title) {
 }
 
 void processInput(GLFWwindow *window) {
-    float moveSpeed = 0.5f;
+    float moveSpeed = 0.2f;
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     } else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
@@ -66,16 +76,58 @@ void processInput(GLFWwindow *window) {
     } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         cameraPos -= cameraFront * moveSpeed;
     } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cameraPos -= glm::cross(cameraFront, cameraUp) * moveSpeed;
-    } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         cameraPos += glm::cross(cameraFront, cameraUp) * moveSpeed;
+    } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        cameraPos -= glm::cross(cameraFront, cameraUp) * moveSpeed;
     }
 }
 
 void windowSizeCallback(GLFWwindow *window, int width, int height) {
     std::cout << __FILE__ << __func__ << __LINE__ << std::endl;
     std::cout << "width: " << width << " height: " << height << std::endl;
-    glfwSetWindowSize(window, width, height);
+    glViewport(0, 0, width, height);
+}
+
+void mouseCallback(GLFWwindow *window, double mouseX, double mouseY) {
+    std::cout << __FILE__ << __func__ << __LINE__ << std::endl;
+    std::cout << "mouseX: " << mouseX << " mouseY: " << mouseY << std::endl;
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) != GLFW_PRESS) {
+        firstMouse = true;
+        return;
+    }
+    if (firstMouse) {
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+        firstMouse = false;
+    }
+    double deltaX = mouseX - lastMouseX;
+    double deltaY = lastMouseY - mouseY;
+    lastMouseX = mouseX;
+    lastMouseY = mouseY;
+    double mouseSensitivity = 0.05f;
+    pitch += deltaY * mouseSensitivity;
+    yaw += deltaX * mouseSensitivity;
+    if (pitch > 89.0f) {
+        pitch = 89.0f;
+    } else if (pitch < -89.0f) {
+        pitch = -89.0f;
+    }
+    glm::vec3 font;
+    font.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+    font.y = sin(glm::radians(pitch));
+    font.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+    cameraFront = glm::normalize(font);
+}
+
+void scrollCallback(GLFWwindow *window, double offsetX, double offsetY) {
+    std::cout << __FILE__ << __func__ << __LINE__ << std::endl;
+    std::cout << "offsetX: " << offsetX << " offsetY: " << offsetY << std::endl;
+    fov -= offsetY;
+    if (fov > 45.0f) {
+        fov = 45.0f;
+    } else if (fov < 1.0f) {
+        fov = 1.0f;
+    }
 }
 
 int draw(GLFWwindow *window) {
@@ -177,9 +229,6 @@ int draw(GLFWwindow *window) {
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glLineWidth(2.0);
-        int width, height;
-        glfwGetWindowSize(window, &width, &height);
-        glViewport(0, 0, width, height);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture[0]);
@@ -200,20 +249,14 @@ int draw(GLFWwindow *window) {
             glm::vec3(1.5f, 0.2f, -1.5f),
             glm::vec3(-1.3f, 1.0f, -1.5f)};
 
-        glm::mat4 view = glm::mat4(1.0f); // 观察矩阵 将物体的坐标从世界转换到观察坐标（用户视野前方的坐标）
-#ifdef ROTATE_CAMERA_TEST
-        view = glm::lookAt(cameraPos,                                   // 摄像机位置
-                           glm::vec3(-cameraPos.x, 0.0f, -cameraPos.z), // 目标位置
-                           cameraUp);                                   // 上向量
-#else
-        view = glm::lookAt(cameraPos,
-                           cameraPos+cameraFront,
-                           cameraUp);
-#endif
+        glm::mat4 view = glm::mat4(1.0f);           // 观察矩阵 将物体的坐标从世界转换到观察坐标（用户视野前方的坐标）
+        view = glm::lookAt(cameraPos,               // 摄像机位置
+                           cameraPos + cameraFront, // 目标位置
+                           cameraUp);               // 上向量
         shader->updateUniformMatrix4fvByName("view", 1, GL_FALSE, glm::value_ptr(view));
 
         glm::mat4 projection = glm::mat4(1.0f); // 投影矩阵 将顶点坐标从观察变换到裁剪空间
-        projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(fov), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
         shader->updateUniformMatrix4fvByName("projection", 1, GL_FALSE, glm::value_ptr(projection));
         for (int i = 0; i < 10; i++) {
             glm::mat4 model = glm::mat4(1.0f); // 模型矩阵 将物体的坐标从局部变换到世界空间
