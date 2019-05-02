@@ -207,7 +207,7 @@ int draw(GLFWwindow *window) {
                            cameraUp);                                   // 上向量
 #else
         view = glm::lookAt(cameraPos,
-                           cameraPos - cameraFront,
+                           cameraPos+cameraFront,
                            cameraUp);
 #endif
         shader->updateUniformMatrix4fvByName("view", 1, GL_FALSE, glm::value_ptr(view));
