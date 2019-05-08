@@ -73,7 +73,7 @@ int draw(GLFWwindow *window) {
 
     GLuint vertexArrayObj;
     glGenVertexArrays(1, &vertexArrayObj);
-    
+
     float points[] = {
         -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
         0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
@@ -120,7 +120,7 @@ int draw(GLFWwindow *window) {
     glGenBuffers(1, &vertexBufferObj);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObj);
     glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
-    
+
     glBindVertexArray(vertexArrayObj);
     boxShader->setVertexAttributePointer("position", 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)0);
     boxShader->setVertexAttributePointer("normal", 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)(3 * sizeof(float)));
@@ -131,23 +131,19 @@ int draw(GLFWwindow *window) {
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObj);
     lightShader->setVertexAttributePointer("position", 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)0);
 
-    glm::mat4 boxModel = glm::mat4(1.0f);
-    boxModel = glm::translate(boxModel, glm::vec3(-0.5f, -0.5f, -0.5f));
-    // boxModel = glm::rotate(boxModel, glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-    boxModel = glm::scale(boxModel, glm::vec3(0.2f));
+    glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    glm::vec3 lightPos = glm::vec3(0.0f, 0.8f, 0.0f);
 
-    glm::mat4 lightModel = glm::mat4(1.0f);
-    lightModel = glm::translate(lightModel, glm::vec3(0.5f, 0.5f, -0.5f));
-    // lightModel = glm::rotate(lightModel, glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-    lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+    glm::mat4 boxModel = glm::mat4(1.0f);
+    boxModel = glm::translate(boxModel, glm::vec3(0.0f, -0.5f, 0.0f));
+    // boxModel = glm::rotate(boxModel, glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    boxModel = glm::scale(boxModel, glm::vec3(0.4f));
 
     glm::mat4 view = glm::mat4(1.0f);
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f)); // 将观察的物体向后移动
     glm::mat4 project = glm::mat4(1.0f);
     project = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / SCREEN_WIDTH, 0.1f, 100.0f);
 
-    glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    glm::vec3 lightWorldPos = glm::vec3(1.2f, 1.0f, 2.0f);
     glEnable(GL_DEPTH_TEST);
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
@@ -155,16 +151,26 @@ int draw(GLFWwindow *window) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glLineWidth(2.0);
 
+        lightPos.x = sin(glfwGetTime());
+        lightPos.y = -0.5f + abs(cos(glfwGetTime()));
+        lightPos.z = -0.5f + sin(glfwGetTime());
+
         boxShader->use();
         boxShader->setUniformMatrix4fvByName("model", 1, GL_FALSE, glm::value_ptr(boxModel));
         boxShader->setUniformMatrix4fvByName("view", 1, GL_FALSE, glm::value_ptr(view));
         boxShader->setUniformMatrix4fvByName("project", 1, GL_FALSE, glm::value_ptr(project));
         boxShader->setUniformFloatVec4ByName("lightColor", lightColor);
-        boxShader->setUniformFloatVec3ByName("LightWorldPos", lightWorldPos);
+        boxShader->setUniformFloat3ByName("ViewPos", 0.0f, 0.0f, 0.0f);
+        boxShader->setUniformFloatVec3ByName("LightWorldPos", lightPos);
         glBindVertexArray(vertexArrayObj);
         glDrawArrays(GL_TRIANGLES, 0, sizeof(points) / (sizeof(float) * 6));
 
         lightShader->use();
+        glm::mat4 lightModel = glm::mat4(1.0f);
+        lightModel = glm::translate(lightModel, lightPos);
+        // lightModel = glm::rotate(lightModel, glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+        lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+
         lightShader->setUniformMatrix4fvByName("model", 1, GL_FALSE, glm::value_ptr(lightModel));
         lightShader->setUniformMatrix4fvByName("view", 1, GL_FALSE, glm::value_ptr(view));
         lightShader->setUniformMatrix4fvByName("project", 1, GL_FALSE, glm::value_ptr(project));

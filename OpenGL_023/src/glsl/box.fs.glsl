@@ -13,6 +13,8 @@ uniform vec4 lightColor;
 // 氏光照模型的主要结构由3个分量组成：环境(Ambient)、漫反射(Diffuse)和镜面(Specular)光照
 // 光源，片断，法向量用于计算漫反射
 uniform vec3 LightWorldPos; // 光源在世界坐标中的位置
+uniform vec3 ViewPos; // 观察者的位置
+
 in vec3 FragWorldPos; // 片段在世界坐标系中的位置
 in vec3 FragNormal; // 法向量
 
@@ -31,5 +33,13 @@ void main () {
     float diff = max(dot(normalize(FragNormal), lightDir), 0.0); // 满反射强度
     vec4 diffuse = diff * lightColor; // 漫反射颜色
 
-    fragColor = (diffuse + ambient) * boxColor;
+    // 镜面反射
+    float specularStrength = 0.5f; // 镜面反射强度
+    vec3 viewDir = normalize(ViewPos - FragWorldPos); // 观察方向向量
+    vec3 reflectDir = reflect(-lightDir, FragNormal); // 光照的反射方向向量
+    // 32是高光的反光度(Shininess)。一个物体的反光度越高，反射光的能力越强，散射得越少，高光点就会越小
+    float reflectStrength = pow(max(dot(reflectDir, reflectDir), 0.0f), 64); // 反光强度 
+    vec4 specular = specularStrength * lightColor;
+
+    fragColor = (diffuse + ambient + specular) * boxColor;
 }
