@@ -38,7 +38,7 @@ void main () {
     vec3 viewDir = normalize(ViewPos - FragWorldPos); // 观察方向向量
     vec3 reflectDir = reflect(-lightDir, FragNormal); // 光照的反射方向向量
     // 32是高光的反光度(Shininess)。一个物体的反光度越高，反射光的能力越强，散射得越少，高光点就会越小
-    float reflectStrength = pow(max(dot(reflectDir, reflectDir), 0.0f), 64); // 反光强度 
+    float reflectStrength = pow(max(dot(viewDir, reflectDir), 0.0f), 32); // 反光强度 
     vec4 specular = specularStrength * lightColor;
 
     fragColor = (diffuse + ambient + specular) * boxColor;
