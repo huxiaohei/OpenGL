@@ -25,3 +25,4 @@
 * [进入3D--摄像机--鼠标控制视角移动]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_021>
 * [光照--颜色]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_022>
 * [光照--冯氏光照模型]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_023>
+* [光照--冯氏光照模型--材质]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_024>
