@@ -132,12 +132,7 @@ int draw(GLFWwindow *window) {
     lightShader->setVertexAttributePointer("position", 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void *)0);
 
     glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    glm::vec3 lightPos = glm::vec3(0.0f, 0.8f, 0.0f);
-
-    glm::mat4 boxModel = glm::mat4(1.0f);
-    boxModel = glm::translate(boxModel, glm::vec3(0.0f, -0.5f, 0.0f));
-    // boxModel = glm::rotate(boxModel, glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-    boxModel = glm::scale(boxModel, glm::vec3(0.4f));
+    glm::vec3 lightPos = glm::vec3(0.0f, 0.8f, -1.0f);
 
     glm::mat4 view = glm::mat4(1.0f);
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f)); // 将观察的物体向后移动
@@ -153,14 +148,20 @@ int draw(GLFWwindow *window) {
 
         lightPos.x = sin(glfwGetTime());
         lightPos.y = -0.5f + abs(cos(glfwGetTime()));
-        lightPos.z = -0.5f + sin(glfwGetTime());
+        lightPos.z = -1.0f + sin(glfwGetTime());
+
+        glm::mat4 boxModel = glm::mat4(1.0f);
+        boxModel = glm::translate(boxModel, glm::vec3(0.0f, -0.8f, 0.0f));
+        boxModel = glm::rotate(boxModel, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        boxModel = glm::scale(boxModel, glm::vec3(0.4f));
 
         boxShader->use();
         boxShader->setUniformMatrix4fvByName("model", 1, GL_FALSE, glm::value_ptr(boxModel));
         boxShader->setUniformMatrix4fvByName("view", 1, GL_FALSE, glm::value_ptr(view));
         boxShader->setUniformMatrix4fvByName("project", 1, GL_FALSE, glm::value_ptr(project));
+
         boxShader->setUniformFloatVec4ByName("lightColor", lightColor);
-        boxShader->setUniformFloat3ByName("ViewPos", 0.0f, 0.0f, 0.0f);
+        boxShader->setUniformFloat3ByName("ViewPos", 0.0f, 0.0f, 1.0f);
         boxShader->setUniformFloatVec3ByName("LightWorldPos", lightPos);
         glBindVertexArray(vertexArrayObj);
         glDrawArrays(GL_TRIANGLES, 0, sizeof(points) / (sizeof(float) * 6));
@@ -168,7 +169,6 @@ int draw(GLFWwindow *window) {
         lightShader->use();
         glm::mat4 lightModel = glm::mat4(1.0f);
         lightModel = glm::translate(lightModel, lightPos);
-        // lightModel = glm::rotate(lightModel, glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0f));
         lightModel = glm::scale(lightModel, glm::vec3(0.2f));
 
         lightShader->setUniformMatrix4fvByName("model", 1, GL_FALSE, glm::value_ptr(lightModel));
