@@ -1,7 +1,7 @@
 /*================================================================
 * Description 光源顶点着色器
 * Email huliuworld@yahoo.com
-* Created on Sat May 04 2019 22:35:21
+* Created on Sun May 19 2019 21:48:55
 * Copyright (c) 2019 刘虎
 ================================================================*/
 
@@ -11,9 +11,9 @@ layout (location = 0) in vec3 position;
 
 uniform mat4 model;
 uniform mat4 view;
-uniform mat4 project;
+uniform mat4 projection;
 
 void main () {
-    gl_Position = project * view * model * vec4(position, 1.0);
+    gl_Position = projection * view * model * vec4(position, 1.0);
 
 }

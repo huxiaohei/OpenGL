@@ -71,6 +71,7 @@ int draw(GLFWwindow *window) {
         return 2;
     }
     Shader *boxShader = new Shader("src/glsl/box.vs.glsl", "src/glsl/box.fs.glsl");
+    Shader *lightShader = new Shader("src/glsl/light.vs.glsl", "src/glsl/light.fs.glsl");
 
     GLuint texture[1];
     glGenTextures(1, texture);
@@ -89,9 +90,8 @@ int draw(GLFWwindow *window) {
     }
     stbi_image_free(textureData);
 
-    GLuint vertexArrayObj;
-    glGenVertexArrays(1, &vertexArrayObj);
-    glBindVertexArray(vertexArrayObj);
+    GLuint vertexArrayObj[2];
+    glGenVertexArrays(2, vertexArrayObj);
 
     GLfloat points[] = {
         // 后
@@ -141,20 +141,26 @@ int draw(GLFWwindow *window) {
     glBindBuffer(GL_ARRAY_BUFFER, vertextBuferObj);
     glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
 
+    glBindVertexArray(vertexArrayObj[0]);
     boxShader->setVertexAttributePointer("pos", 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void *)0);
     boxShader->setVertexAttributePointer("normal", 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void *)(sizeof(GLfloat) * 3));
     boxShader->setVertexAttributePointer("texturePos", 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void *)(sizeof(GLfloat) * 6));
 
+    glBindVertexArray(vertexArrayObj[1]);
+    lightShader->setVertexAttributePointer("position", 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void *)0);
+    
     glEnable(GL_DEPTH_TEST);
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glLineWidth(2.0);
+
+        float time = glfwGetTime();
         boxShader->use();
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-0.3f, -0.0f, -2.0f));
-        model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(time * 15), glm::vec3(0.0f, 1.0f, 0.0f));
         boxShader->setUniformMatrix4fvByName("model", 1, GL_FALSE, glm::value_ptr(model));
         glm::mat4 view = glm::mat4(1.0f);
         view = glm::lookAt(cameraPos,
@@ -164,24 +170,42 @@ int draw(GLFWwindow *window) {
         glm::mat4 projection = glm::mat4(1.0f);
         projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
         boxShader->setUniformMatrix4fvByName("projection", 1, GL_FALSE, glm::value_ptr(projection));
-
         boxShader->setUniformIntByName("material.diffuse", 0);
         boxShader->setUniformFloatVec3ByName("material.specular", glm::vec3(1.0f, 1.0f, 1.0f));
         boxShader->setUniformFloatByName("material.shininess", 0.4 * 128);
         boxShader->setUniformFloatByName("material.ambientStrength", 0.2f);
         boxShader->setUniformFloatByName("material.diffuseStrength", 0.5f);
         boxShader->setUniformFloatByName("material.specularStrength", 1.0f);
-
         boxShader->setUniformFloatVec3ByName("observerPos", cameraPos);
         boxShader->setUniformFloatVec3ByName("light.worldPos", glm::vec3(0.8f, 0.8f, 0.0f));
         boxShader->setUniformFloatVec3ByName("light.color", glm::vec3(1.0f, 1.0f, 1.0f));
-
+        glBindVertexArray(vertexArrayObj[0]);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        lightShader->use();
+        lightShader->setUniformFloatVec3ByName("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        glm::mat4 lightModel = glm::mat4(1.0f);
+        lightModel = glm::translate(lightModel, glm::vec3(0.8f, 0.8f, 0.0f));
+        lightModel = glm::rotate(lightModel, glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+        lightModel = glm::scale(lightModel, glm::vec3(0.3f, 0.3f, 0.3f));
+        lightShader->setUniformMatrix4fvByName("model", 1, GL_FALSE, glm::value_ptr(lightModel));
+        glm::mat4 lightView = glm::mat4(1.0f);
+        lightView = glm::lookAt(cameraPos,
+                                cameraPos + cameraFront,
+                                cameraUp);
+        lightShader->setUniformMatrix4fvByName("view", 1, GL_FALSE, glm::value_ptr(lightView));
+        glm::mat4 lightProjection = glm::mat4(1.0f);
+        lightProjection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+        lightShader->setUniformMatrix4fvByName("projection", 1, GL_FALSE, glm::value_ptr(lightProjection));
+        glBindVertexArray(vertexArrayObj[1]);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
         glfwPollEvents();
         glfwSwapBuffers(window);
     }
     delete boxShader;
-    glDeleteVertexArrays(1, &vertexArrayObj);
+    delete lightShader;
+    glDeleteVertexArrays(2, vertexArrayObj);
     glDeleteBuffers(1, &vertextBuferObj);
     glfwTerminate();
     return 0;
