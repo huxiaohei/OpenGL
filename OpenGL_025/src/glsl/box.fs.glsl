@@ -17,7 +17,7 @@ struct Light {
 // 移除了环境光材质颜色向量，因为环境光颜色在几乎所有情况下都等于漫反射颜色，所以我们不需要将它们分开储存
 struct Material {
     sampler2D diffuse;
-    vec3 specular;
+    sampler2D specular;
     float shininess;
     float ambientStrength;
     float diffuseStrength;
@@ -45,7 +45,7 @@ void main () {
     vec3 observerVector = normalize(observerPos - worldPos);
     vec3 reflectVerctor = reflect(-lightVector, normalVector);
     float reflectStrength = pow(max(dot(observerVector, reflectVerctor), 0.0f), material.shininess);
-    vec4 specular = reflectStrength * material.specularStrength * vec4(light.color * material.specular, 1.0f);
+    vec4 specular = reflectStrength * material.specularStrength * vec4(light.color, 1.0f) * texture(material.specular, texcoord);
 
     fragmentColor = ambient + diffuse + specular;
 }

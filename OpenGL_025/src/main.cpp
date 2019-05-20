@@ -73,8 +73,8 @@ int draw(GLFWwindow *window) {
     Shader *boxShader = new Shader("src/glsl/box.vs.glsl", "src/glsl/box.fs.glsl");
     Shader *lightShader = new Shader("src/glsl/light.vs.glsl", "src/glsl/light.fs.glsl");
 
-    GLuint texture[1];
-    glGenTextures(1, texture);
+    GLuint texture[2];
+    glGenTextures(2, texture);
     glBindTexture(GL_TEXTURE_2D, texture[0]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -89,6 +89,18 @@ int draw(GLFWwindow *window) {
         std::cerr << "load img failure" << std::endl;
     }
     stbi_image_free(textureData);
+    glBindTexture(GL_TEXTURE_2D, texture[1]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    textureData = stbi_load("res/box_border.png", &imgWidth, &imgHeight, &nrChannels, 0);
+    if (textureData) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgWidth, imgHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cerr << "load img failure" << std::endl;
+    }
 
     GLuint vertexArrayObj[2];
     glGenVertexArrays(2, vertexArrayObj);
@@ -148,7 +160,7 @@ int draw(GLFWwindow *window) {
 
     glBindVertexArray(vertexArrayObj[1]);
     lightShader->setVertexAttributePointer("position", 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void *)0);
-    
+
     glEnable(GL_DEPTH_TEST);
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
@@ -170,8 +182,12 @@ int draw(GLFWwindow *window) {
         glm::mat4 projection = glm::mat4(1.0f);
         projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
         boxShader->setUniformMatrix4fvByName("projection", 1, GL_FALSE, glm::value_ptr(projection));
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture[0]);
         boxShader->setUniformIntByName("material.diffuse", 0);
-        boxShader->setUniformFloatVec3ByName("material.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture[1]);
+        boxShader->setUniformIntByName("material.specular", 1);
         boxShader->setUniformFloatByName("material.shininess", 0.4 * 128);
         boxShader->setUniformFloatByName("material.ambientStrength", 0.2f);
         boxShader->setUniformFloatByName("material.diffuseStrength", 0.5f);
