@@ -27,3 +27,4 @@
 * [光照--冯氏光照模型]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_023>
 * [光照--冯氏光照模型--材质]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_024>
 * [光照贴图]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_025>
+* [平行光]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_026>
