@@ -17,8 +17,16 @@
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
+float pitch = 0.0f;     // 俯仰角
+float yaw = -90.0f;     // 偏航角
+bool firstMouse = true; // 第一次移动鼠标
+double lastMousePosX = 0.0f;
+double lastMousePosY = 0.0f;
+
 GLFWwindow *createWindow(std::string title, int width, int height);
 void windowSizeCallback(GLFWwindow *window, int width, int height);
+void mouseCallback(GLFWwindow *window, double x, double y);
+void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 void processInput(GLFWwindow *window);
 int draw(GLFWwindow *window);
 
@@ -33,6 +41,8 @@ int main(int argc, char *argv[]) {
     }
     glfwMakeContextCurrent(window);
     glfwSetWindowSizeCallback(window, windowSizeCallback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfwSetCursorPosCallback(window, mouseCallback);
     return draw(window);
 }
 
@@ -58,9 +68,50 @@ void windowSizeCallback(GLFWwindow *window, int width, int height) {
               << "height: " << height << std::endl;
 }
 
+void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
+    if (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT) {
+        firstMouse = false;
+        glfwGetCursorPos(window, &lastMousePosX, &lastMousePosY);
+    } else {
+        firstMouse = true;
+    }
+}
+
+void mouseCallback(GLFWwindow *window, double x, double y) {
+    float sensitivity = 0.05f;
+    if (firstMouse) {
+        return;
+    }
+    double offsetX = x - lastMousePosX;
+    double offsetY = y - lastMousePosY;
+    lastMousePosX = x;
+    lastMousePosY = y;
+    yaw += offsetX * sensitivity;
+    pitch -= offsetY * sensitivity;
+    if (pitch > 89.0f) {
+        pitch = 89.0f;
+    } else if (pitch < -89.0f) {
+        pitch = -89.0f;
+    }
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(front);
+}
+
 void processInput(GLFWwindow *window) {
+    float moveSpeed = 0.1f;
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+    } else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        cameraPos += glm::normalize(cameraFront) * moveSpeed;
+    } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        cameraPos -= glm::normalize(cameraFront) * moveSpeed;
+    } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * moveSpeed;
+    } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * moveSpeed;
     }
 }
 
@@ -164,7 +215,6 @@ int draw(GLFWwindow *window) {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glLineWidth(2.0);
-
         float time = glfwGetTime();
         boxShader->use();
         glm::mat4 view = glm::mat4(1.0f);
@@ -186,7 +236,7 @@ int draw(GLFWwindow *window) {
         boxShader->setUniformFloatByName("material.diffuseStrength", 0.5f);
         boxShader->setUniformFloatByName("material.specularStrength", 1.0f);
         boxShader->setUniformFloatVec3ByName("observerPos", cameraPos);
-        boxShader->setUniformFloatVec3ByName("parallelLight.direction", glm::vec3(-1000.0f, 1000.0f, 1000.0f));
+        boxShader->setUniformFloatVec3ByName("parallelLight.direction", glm::vec3(-1000.0f, 1000.0f, -8.0f));
         boxShader->setUniformFloatVec3ByName("parallelLight.color", glm::vec3(1.0f, 1.0f, 1.0f));
         glBindVertexArray(vertexArrayObj[0]);
 
@@ -203,7 +253,7 @@ int draw(GLFWwindow *window) {
             } else if (i == 4) {
                 model = glm::translate(model, glm::vec3(-5.0f, -3.0f, -8.0f));
             }
-            model = glm::rotate(model, glm::radians(time * 15), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::rotate(model, time, glm::vec3(0.0f, 1.0f, 0.0f));
             boxShader->setUniformMatrix4fvByName("model", 1, GL_FALSE, glm::value_ptr(model));
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
