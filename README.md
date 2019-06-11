@@ -30,3 +30,4 @@
 * [平行光]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_026>
 * [点光源]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_027>
 * [聚光]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_028>
+* [聚光软化边缘]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_029>
