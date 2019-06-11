@@ -29,3 +29,4 @@
 * [光照贴图]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_025>
 * [平行光]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_026>
 * [点光源]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_027>
+* [聚光]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_028>
