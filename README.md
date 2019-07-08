@@ -32,3 +32,4 @@
 * [聚光]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_028>
 * [聚光软化边缘]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_029>
 * [多光源]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_030>
+* [模型]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_031>
