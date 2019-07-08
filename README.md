@@ -34,3 +34,4 @@
 * [多光源]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_030>
 * [模型]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_031>
 * [模型--光照]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_032>
+    ![效果](https://github.com/huxiaohei/OpenGL/tree/master/assets/032.gif)
