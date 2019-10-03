@@ -1,5 +1,5 @@
 /*================================================================
-* Description 深度测试
+* Description 模版测试
 * Email huliuworld@yahoo.com
 * Created on Sat May 18 2019 22:24:28
 * Copyright (c) 2019 刘虎
@@ -14,10 +14,6 @@
 #include <glm/matrix.hpp>
 #include <iostream>
 
-// #define TEST_GL_ALWAYS 1
-// #define TEST_DEPTH_FIGHTING 1
-#define TEST_PREVENT_DEPTH_FIGHTING 1
-
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 360
 
@@ -31,7 +27,7 @@ glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 int main(int argc, char *argv[]) {
-    GLFWwindow *window = createWindow("深度测试", SCREEN_WIDTH, SCREEN_HEIGHT);
+    GLFWwindow *window = createWindow("模版测试", SCREEN_WIDTH, SCREEN_HEIGHT);
     if (window == NULL) {
         std::cout << "create window failure" << std::endl;
     }
@@ -75,6 +71,7 @@ int draw(GLFWwindow *window) {
         return 2;
     }
     Shader *shader = new Shader("src/glsl/depth.vs.glsl", "src/glsl/depth.fs.glsl");
+    Shader *outlineShader = new Shader("src/glsl/outline.vs.glsl", "src/glsl/outline.fs.glsl");
 
     GLuint texture[2];
     glGenTextures(2, texture);
@@ -171,68 +168,74 @@ int draw(GLFWwindow *window) {
     glBindVertexArray(vertexArrayObj[0]);
     shader->setVertexAttributePointer("pos", 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5, (void *)0);
     shader->setVertexAttributePointer("texturePos", 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5, (void *)(sizeof(GLfloat) * 3));
+    outlineShader->setVertexAttributePointer("pos", 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5, (void *)0);
 
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuferObj[1]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(floorPoint), floorPoint, GL_STATIC_DRAW);
     glBindVertexArray(vertexArrayObj[1]);
     shader->setVertexAttributePointer("pos", 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5, (void *)0);
     shader->setVertexAttributePointer("texturePos", 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5, (void *)(sizeof(GLfloat) * 3));
-
+    
     glEnable(GL_DEPTH_TEST);
-
-#ifdef TEST_GL_ALWAYS
-    glDepthFunc(GL_ALWAYS);
-#endif
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPEAT);
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
+        
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glLineWidth(2.0);
 
-        float time = glfwGetTime();
         shader->use();
-
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, glm::radians(time * 15), glm::vec3(0.0f, 1.0f, 0.0f));
-
-#ifdef TEST_PREVENT_DEPTH_FIGHTING
-        model = glm::translate(model, glm::vec3(0.0f, 0.1f, 0.0f));
-#endif
-
-        shader->setUniformMatrix4fvByName("model", 1, GL_FALSE, glm::value_ptr(model));
         glm::mat4 view = glm::mat4(1.0f);
-#if defined(TEST_DEPTH_FIGHTING) || defined(TEST_PREVENT_DEPTH_FIGHTING)
-        cameraPos = glm::vec3(0, 0.2, 0);
-#endif
         view = glm::lookAt(cameraPos,
                            cameraPos + cameraFront,
                            cameraUp);
         shader->setUniformMatrix4fvByName("view", 1, GL_FALSE, glm::value_ptr(view));
         glm::mat4 projection = glm::mat4(1.0f);
         projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
-#if defined(TEST_DEPTH_FIGHTING) || defined(TEST_PREVENT_DEPTH_FIGHTING)
-        projection = glm::rotate(projection, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-#endif
         shader->setUniformMatrix4fvByName("projection", 1, GL_FALSE, glm::value_ptr(projection));
+
+        glStencilMask(0x00); // 绘制地板的时候不更新模版缓冲
+        glm::mat4 model = glm::mat4(1.0f);
+        shader->setUniformMatrix4fvByName("model", 1, GL_FALSE, glm::value_ptr(model));
         shader->setUniformIntByName("textureSampler2D", 0);
         glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture[1]);
+        glBindVertexArray(vertexArrayObj[1]);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+        model = glm::mat4(1.0f);
+        model = glm::rotate(model, glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        shader->setUniformMatrix4fvByName("model", 1, GL_FALSE, glm::value_ptr(model));
+        shader->setUniformIntByName("textureSampler2D", 1);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture[0]);
         glBindVertexArray(vertexArrayObj[0]);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        model = glm::mat4(1.0f);
-        shader->setUniformMatrix4fvByName("model", 1, GL_FALSE, glm::value_ptr(model));
-        shader->setUniformIntByName("textureSampler2D", 1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture[1]);
-        glBindVertexArray(vertexArrayObj[1]);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+        glDisable(GL_DEPTH_TEST);
+        outlineShader->use();
+        outlineShader->setUniformMatrix4fvByName("view", 1, GL_FALSE, glm::value_ptr(view));
+        outlineShader->setUniformMatrix4fvByName("projection", 1, GL_FALSE, glm::value_ptr(projection));
+        model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.1f));
+        outlineShader->setUniformMatrix4fvByName("model", 1, GL_FALSE, glm::value_ptr(model));
+        glBindVertexArray(vertexArrayObj[0]);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwPollEvents();
         glfwSwapBuffers(window);
     }
     delete shader;
+    delete outlineShader;
     glDeleteVertexArrays(2, vertexArrayObj);
     glDeleteBuffers(2, vertexBuferObj);
     glDeleteTextures(2, texture);

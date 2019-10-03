@@ -37,3 +37,4 @@
 * [模型--光照]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_032>
     ![效果](./assets/032.gif)
 * [深度测试]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_033>
+* [模版测试]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_034>
