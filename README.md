@@ -38,3 +38,4 @@
     ![效果](./assets/032.gif)
 * [深度测试]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_033>
 * [模版测试]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_034>
+* [渲染带透明区域的图片]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_035>
