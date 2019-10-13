@@ -39,3 +39,4 @@
 * [深度测试]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_033>
 * [模版测试]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_034>
 * [渲染带透明区域的图片]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_035>
+* [渲染半透明纹理]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_036>
