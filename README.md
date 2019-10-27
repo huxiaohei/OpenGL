@@ -43,3 +43,4 @@
 * [面剔除]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_037>
 * [离屏渲染]]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_038>
 * [后期处理-反相/灰度/核效果]]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_039>
+* [天空盒子]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_040>
