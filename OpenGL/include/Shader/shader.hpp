@@ -14,9 +14,11 @@ class Shader {
 private:
 protected:
     GLuint programId;
+	std::string readFileToStr(const std::string &file);
 
 public:
     Shader(const std::string &vertexShaderFile, const std::string &fragmentShaderFile);
+	Shader(const std::string &vertexShaderFile, const std::string &fragmentShaderFile, const std::string &geometryShaderFile);
     ~Shader();
     void use();
     bool checkShaderCompileError(GLuint shader) const;

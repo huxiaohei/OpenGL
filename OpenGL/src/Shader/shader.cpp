@@ -10,27 +10,9 @@
 #include <sstream>
 
 Shader::Shader(const std::string &vertexShaderFile, const std::string &fragmentShaderFile) {
-    std::fstream vertexFileHandle;
-    std::fstream fragmentFileHandle;
-    vertexFileHandle.exceptions(std::fstream::failbit | std::fstream::badbit);
-    fragmentFileHandle.exceptions(std::fstream::failbit | std::fstream::badbit);
-    std::string vertexShaderStr;
-    std::string fragmentShaderStr;
-    try {
-        vertexFileHandle.open(vertexShaderFile);
-        std::stringstream vertexStrStream;
-        vertexStrStream << vertexFileHandle.rdbuf();
-        vertexFileHandle.close();
-        vertexShaderStr = vertexStrStream.str();
-
-        fragmentFileHandle.open(fragmentShaderFile);
-        std::stringstream fragmentStrStream;
-        fragmentStrStream << fragmentFileHandle.rdbuf();
-        fragmentFileHandle.close();
-        fragmentShaderStr = fragmentStrStream.str();
-    } catch (std::exception &e) {
-        std::cerr << "read file error: " << e.what() << std::endl;
-    }
+	
+	std::string vertexShaderStr = this->readFileToStr(vertexShaderFile);
+	std::string fragmentShaderStr = this->readFileToStr(fragmentShaderFile);
 
     const char *vertexShaderCode = vertexShaderStr.c_str();
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -53,6 +35,36 @@ Shader::Shader(const std::string &vertexShaderFile, const std::string &fragmentS
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+}
+
+Shader::Shader(const std::string &vertexShaderFile, const std::string &geometryShaderFile, const std::string &fragmentShaderFile) {
+	std::string vertexShaderStr = this->readFileToStr(vertexShaderFile);
+	std::string geometryShaderStr = this->readFileToStr(geometryShaderFile);
+	std::string fragmentShaderStr = this->readFileToStr(fragmentShaderFile);
+
+	const char *vertexShaderCode = vertexShaderStr.c_str();
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader, 1, &vertexShaderCode, NULL);
+	glCompileShader(vertexShader);
+	checkShaderCompileError(vertexShader);
+
+	const char *geometryShaderCode = geometryShaderStr.c_str();
+	GLuint geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+	glShaderSource(geometryShader, 1, &geometryShaderCode, NULL);
+	glCompileShader(geometryShader);
+	checkShaderCompileError(geometryShader);
+
+	const char *fragmentShaderCode = fragmentShaderStr.c_str();
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fragmentShaderCode, NULL);
+	glCompileShader(fragmentShader);
+	checkShaderCompileError(fragmentShader);
+	
+	programId = glCreateProgram();
+	glAttachShader(programId, vertexShader);
+	glAttachShader(programId, geometryShader);
+	glAttachShader(programId, fragmentShader);
+	glLinkProgram(programId);
 }
 
 Shader::~Shader() {
@@ -168,4 +180,20 @@ bool Shader::checkProgramLinkError() const {
         return false;
     }
     return true;
+}
+
+/**************************************************************/
+
+std::string Shader::readFileToStr(const std::string &file) {
+	try {
+		std::fstream fileHandle;
+		fileHandle.open(file);
+		std::stringstream stream;
+		stream << fileHandle.rdbuf();
+		fileHandle.close();
+		return stream.str();
+	} catch (std::exception &e) {
+		std::cerr << "read file error: " << e.what() << std::endl;
+		return "";
+	}
 }
