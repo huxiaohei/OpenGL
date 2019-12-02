@@ -33,9 +33,9 @@
 * [聚光软化边缘]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_029>
 * [多光源]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_030>
 * [模型]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_031>
-    ![效果](./assets/031.png)
+    ![效果](./assets/doc/031.png)
 * [模型--光照]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_032>
-    ![效果](./assets/032.gif)
+    ![效果](./assets/doc/032.gif)
 * [深度测试]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_033>
 * [模版测试]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_034>
 * [渲染带透明区域的图片]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_035>
@@ -46,3 +46,4 @@
 * [天空盒子]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_040>
 * [反射]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_041>
 * [几何着色器]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_042>
+* [爆破物体]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_043>

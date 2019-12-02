@@ -86,7 +86,7 @@ void Shader::setVertexAttributePointer(const char *attributeName, GLint size,
                                        const GLvoid *pointer) {
     GLint location = glGetAttribLocation(programId, attributeName);
     if (location < 0) {
-        std::cout << "attribute location error" << std::endl;
+        std::cout << "attribute " << attributeName << " location error" << std::endl;
         return;
     }
     glEnableVertexAttribArray(location);
