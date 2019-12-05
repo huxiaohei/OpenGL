@@ -48,3 +48,5 @@
 * [几何着色器]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_042>
 * [爆破物体]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_043>
 * [法向量可视化]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_044>
+* [法向量可视化]<https://github.com/huxiaohei/OpenGL/tree/master/OpenGL_045>
+
